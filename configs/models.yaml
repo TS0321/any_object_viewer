@@ -1,0 +1,60 @@
+# 利用可能なモデル一覧（docs/spec.md 3.8.3）
+# GUI から追加すると、このファイルに追記される。
+#
+# huggingface ローダは ~/.cache/huggingface を先に見るため、
+# 一度取得済みのモデルはオフラインでも読める。
+# torch_hub ローダは github.com への接続が必要。
+models:
+  # --- 既定。HF キャッシュ経由なのでオフラインでも動く ---
+  - name: dinov2_base
+    loader: huggingface
+    args:
+      path: facebook/dinov2-base
+    preprocess:
+      input_size: 224
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
+    embeddings: [cls, patch_mean, concat]
+
+  - name: dinov2_small
+    loader: huggingface
+    args:
+      path: facebook/dinov2-small
+    preprocess:
+      input_size: 224
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
+    embeddings: [cls, patch_mean, concat]
+
+  - name: dinov2_large
+    loader: huggingface
+    args:
+      path: facebook/dinov2-large
+    preprocess:
+      input_size: 224
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
+    embeddings: [cls, patch_mean, concat]
+
+  # --- 比較用。DINO v1（ViT-B/16）---
+  - name: dino_v1_vitb16
+    loader: huggingface
+    args:
+      path: facebook/dino-vitb16
+    preprocess:
+      input_size: 224
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
+    embeddings: [cls, patch_mean, concat]
+
+  # --- torch.hub 経由（github.com への接続が必要）---
+  - name: dinov2_vitb14_hub
+    loader: torch_hub
+    args:
+      repo: facebookresearch/dinov2
+      model: dinov2_vitb14
+    preprocess:
+      input_size: 224
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
+    embeddings: [cls, patch_mean, concat]
