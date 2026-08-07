@@ -15,12 +15,17 @@ from ..base import (
 
 
 def resolve_device(preferred: str | None = None) -> str:
-    """cuda > mps > cpu の順に利用可能なデバイスを選ぶ."""
+    """cuda > mps > cpu の順に利用可能なデバイスを選ぶ.
+
+    mps は macOS にしか無いので、属性の有無から確認する
+    （Windows / Linux でも落ちないように）。
+    """
     if preferred and preferred != "auto":
         return preferred
     if torch.cuda.is_available():
         return "cuda"
-    if torch.backends.mps.is_available():
+    mps = getattr(torch.backends, "mps", None)
+    if mps is not None and mps.is_available():
         return "mps"
     return "cpu"
 

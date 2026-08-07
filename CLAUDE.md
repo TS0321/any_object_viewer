@@ -5,6 +5,29 @@
 
 **仕様は [docs/spec.md](docs/spec.md) が正。** 機能を足す前にそこを読むこと。
 
+## 現在の状況（引き継ぎ用）
+
+- 最小構成は動作する。**開発・検証は macOS (Apple Silicon / MPS) でのみ実施**。
+  Windows / Linux はコード上は対応したが**実機未検証**。
+- 既定モデルは `dinov2_base`（HuggingFace 経由）。**初回は 330MB のダウンロードが要る**。
+  `~/.cache/huggingface` に入る。二度目以降はオフラインでも動く。
+- `sample_data/` は gitignore。`uv run python scripts/make_sample_frames.py` で生成する。
+
+### Windows で最初にやること
+
+1. `uv sync` → `uv run python scripts/make_sample_frames.py` → `uv run aov`
+2. **UI の日本語が表示されるか確認**（豆腐なら `gui/fonts.py` の候補にパスを追加。
+   `AOV_FONT` 環境変数でも指定できる。起動ログにどのフォントを使ったか出る）
+3. モデル読込が通るか確認（huggingface.co への接続が要る）
+4. GPU を使うなら torch の入れ直しが要る。README の「Windows に持っていく場合の注意」参照
+
+### 未実装（docs/spec.md 参照）
+
+セッション保存 (3.12) / GUI からのモデル追加 (3.8.3) /
+timm・onnx ローダ (3.8.2) / 検出モデル (7.1) / 動画入力 (7.2) / CSV 出力 (7.3)
+
+次に着手するなら**セッション保存**が有力（ギャラリーを組む手間が実際に効いてきている）。
+
 ## コマンド
 
 ```bash
@@ -64,6 +87,10 @@ loaders/                ユーザー定義ローダの置き場（起動時に�
 - embedding は `(モデル名, embedding 種別)` をキーにキャッシュする。
   どちらかが変わったら再計算が必要（`Gallery.stale_images`）。
 - Dear ImGui 1.92 はグリフを動的ロードするため、日本語フォントに範囲指定は不要。
+- **OS 依存を持ち込まない。** 開発は macOS だが Windows / Linux でも動かす想定。
+  フォントパスは `gui/fonts.py` の候補リストに集約する。パスの分解に
+  `"/"` の split を使わない（`PureWindowsPath` なら両方の区切りを扱える）。
+  `torch.backends.mps` は macOS にしか無いので `getattr` で確認する。
 - **既定モデルは `huggingface` ローダ経由の `dinov2_base`。** `~/.cache/huggingface`
   を先に見るのでオフラインでも動く。`torch_hub` ローダは github.com への接続が要る
   （この環境では通らないことがある）ため既定にしない。
@@ -73,10 +100,3 @@ loaders/                ユーザー定義ローダの置き場（起動時に�
   「押したのに何も起きない」に見える。逆に torch のロガーを INFO にすると内部ログが
   流れ込むので `WARNING` に抑えること。
 
-## 未実装（docs/spec.md 参照）
-
-- セッション保存（3.12）
-- GUI からのモデル追加（3.8.3）
-- timm / huggingface / onnx ローダ（3.8.2）
-- 検出モデルによる BBox 自動生成（7.1）
-- 動画ファイル入力（7.2）、結果のエクスポート（7.3）

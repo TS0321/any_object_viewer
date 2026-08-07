@@ -16,6 +16,40 @@
 - embedding 種別の切替（CLS / パッチ平均 / 両者の結合）
 - **モデルは差し替え前提**。YAML に登録すれば任意のモデルを読める
 
+## 対応プラットフォーム
+
+| OS | 状態 |
+|---|---|
+| macOS (Apple Silicon) | 動作確認済み。MPS を自動選択 |
+| Windows / Linux | コード上は対応済みだが**未検証** |
+
+### Windows に持っていく場合の注意
+
+- **GPU を使うには torch の入れ直しが要る。** `uv.lock` の CUDA 依存は
+  `sys_platform == 'linux'` に限定されているため、Windows では CPU 推論になる。
+  NVIDIA GPU を使うなら [pytorch.org](https://pytorch.org/get-started/locally/) で
+  CUDA 版のインデックスを確認し、`pyproject.toml` に追加する:
+
+  ```toml
+  [[tool.uv.index]]
+  name = "pytorch-cuda"
+  url = "https://download.pytorch.org/whl/cu128"   # バージョンは要確認
+  explicit = true
+
+  [tool.uv.sources]
+  torch = [{ index = "pytorch-cuda", marker = "sys_platform == 'win32'" }]
+  ```
+
+  CPU でも DINOv2 ViT-B の推論は 1 枚あたり数百 ms 程度なので、
+  検証用途なら実用範囲ではある。
+
+- **日本語フォント**は游ゴシック → メイリオ → MS ゴシックの順に自動で探す。
+  見つからない場合は起動時に警告が出るので、`AOV_FONT` でパスを明示指定する:
+
+  ```
+  set AOV_FONT=C:\Windows\Fonts\YuGothR.ttc
+  ```
+
 ## セットアップ
 
 [uv](https://docs.astral.sh/uv/) が必要。

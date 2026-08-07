@@ -1,0 +1,11 @@
+# macOS と Windows を行き来するので、改行は LF に統一する。
+# これが無いと Windows 側の core.autocrlf で全行が差分になることがある。
+* text=auto eol=lf
+
+# バイナリ（変換させない）
+*.png binary
+*.jpg binary
+*.pt  binary
+*.pth binary
+*.onnx binary
+*.safetensors binary

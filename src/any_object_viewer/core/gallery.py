@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass, field
+from pathlib import PureWindowsPath
 
 import numpy as np
 
@@ -33,7 +34,10 @@ class RegisteredImage:
 
     def origin_label(self) -> str:
         if self.source_path is not None:
-            return self.source_path.rsplit("/", 1)[-1]
+            # PureWindowsPath は "\\" と "/" の両方を区切りとして扱うので、
+            # 別 OS で保存したセッションを読んでもファイル名を取り出せる。
+            # （PurePath だと実行中の OS の規則しか適用されない）
+            return PureWindowsPath(self.source_path).name
         return f"frame {self.frame_index}"
 
     def is_stale(self, key: tuple) -> bool:
